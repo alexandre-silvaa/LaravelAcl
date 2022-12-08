@@ -27,7 +27,8 @@ class HomeController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $chamados = Chamado::where('user_id','=',$user->id)->get();
+        //$chamados = Chamado::where('user_id','=',$user->id)->get();
+        $chamados = Chamado::all();
         return view('home', compact('chamados'));
     }
 
@@ -37,9 +38,11 @@ class HomeController extends Controller
 
         //$this->authorize('ver_chamado',$chamado);
         
-        if(Gate::allows('ver_chamado',$chamado)){
+        /*if(Gate::allows('ver_chamado',$chamado)){
             return view('detalhe', compact('chamado'));
         }
-        return redirect()->back();
+        return redirect()->back();*/
+
+        return view('detalhe', compact('chamado'));
     }
 }
