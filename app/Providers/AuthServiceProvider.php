@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Chamado;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -25,6 +26,8 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Gate::define('ver_chamado',function($user, Chamado $chamado){
+            return $user->id == $chamado->user_id;
+        });
     }
 }

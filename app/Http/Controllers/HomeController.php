@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Chamado;
+use Auth;
+use Gate;
 
 class HomeController extends Controller
 {
@@ -23,6 +26,20 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $user = Auth::user();
+        $chamados = Chamado::where('user_id','=',$user->id)->get();
+        return view('home', compact('chamados'));
+    }
+
+    public function detalhe($id)
+    {
+        $chamado = Chamado::find($id);
+
+        //$this->authorize('ver_chamado',$chamado);
+        
+        if(Gate::allows('ver_chamado',$chamado)){
+            return view('detalhe', compact('chamado'));
+        }
+        return redirect()->back();
     }
 }
