@@ -38,5 +38,9 @@ class User extends Authenticatable
         return $this->belongsTo('App\Chamado');
     }
 
+    public function eAdmin()
+    {
+        return $this->id == 1;
+    }
 
 }

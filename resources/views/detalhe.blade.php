@@ -6,7 +6,7 @@
         
         <h2>Detalhes de chamados - Chamado {{ $chamado->id }}</h2>
 
-        @can('ver_chamado',$chamado)
+        @can('view',$chamado)
         <b>Título: {{ $chamado->titulo }}</b>
         <p>{{ $chamado->descricao }}</p>
         @else
