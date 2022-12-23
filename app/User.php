@@ -40,7 +40,8 @@ class User extends Authenticatable
 
     public function eAdmin()
     {
-        return $this->id == 1;
+        //return $this->id == 1;
+        return $this->existePapel('Admin');
     }
 
     public function papeis()
@@ -61,6 +62,7 @@ class User extends Authenticatable
         return $this->papeis()->attach($papel);
 
     }
+
     public function existePapel($papel)
     {
         if (is_string($papel)) {
@@ -70,6 +72,7 @@ class User extends Authenticatable
         return (boolean) $this->papeis()->find($papel->id);
 
     }
+
     public function removePapel($papel)
     {
         if (is_string($papel)) {
@@ -77,6 +80,20 @@ class User extends Authenticatable
         }
 
         return $this->papeis()->detach($papel);
+    }
+
+    public function temUmPapelDestes($papeis)
+    {
+        //dd($papeis);
+        $userPapeis = $this->papeis;
+        if( is_array($papeis) || is_object($papeis) )
+        {
+            return !! $papeis->intersect($this->userPapeis)->count();
+        }
+        return $this->papeis->contains('nome', $papeis);
+
+        // $userPapeis = $this->papeis;
+        // return $papeis->intersect($userPapeis)->count();
     }
 
 }

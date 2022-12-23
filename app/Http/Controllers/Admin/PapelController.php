@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Papel;
 use App\Permissao;
+use Gate;
 
 class PapelController extends Controller
 {
@@ -16,44 +17,56 @@ class PapelController extends Controller
      */
     public function index()
     {
-      $registros = Papel::all();
-      $caminhos = [
-      ['url'=>'/admin','titulo'=>'Admin'],
-      ['url'=>'','titulo'=>'Papéis']
-      ];
-      return view('admin.papel.index',compact('registros','caminhos'));
+      if(Gate::allows('papel-view')){
+          $registros = Papel::all();
+          $caminhos = [
+          ['url'=>'/admin','titulo'=>'Admin'],
+          ['url'=>'','titulo'=>'Papéis']
+          ];
+          return view('admin.papel.index',compact('registros','caminhos'));
+      }
+      return redirect()->back();
     }
 
     public function permissao($id)
     {
-        $papel = Papel::find($id);
-        $permissao = Permissao::all();
-                $caminhos = [
-            ['url'=>'/admin', 'titulo'=>'Admin'],
-            ['url'=>route('papeis.index'), 'titulo'=>'Papéis'],
-            ['url'=>'', 'titulo'=>'Permissões'],
-        ];
-        return view('admin.papel.permissao',compact('permissao','papel','caminhos'));
+      if(Gate::allows('papel-edit')){
+          $papel = Papel::find($id);
+          $permissao = Permissao::all();
+                  $caminhos = [
+              ['url'=>'/admin', 'titulo'=>'Admin'],
+              ['url'=>route('papeis.index'), 'titulo'=>'Papéis'],
+              ['url'=>'', 'titulo'=>'Permissões'],
+          ];
+          return view('admin.papel.permissao',compact('permissao','papel','caminhos'));
+      }
+      return redirect()->back();
     }
 
     public function permissaoStore(Request $request,$id)
     {
-        $papel = Papel::find($id);
-        $data = $request->all();
+      if(Gate::allows('papel-edit')){
+          $papel = Papel::find($id);
+          $data = $request->all();
 
-        $permissao = Permissao::find($data['permissao_id']);
-        $papel->adicionaPermissao($permissao);
+          $permissao = Permissao::find($data['permissao_id']);
+          $papel->adicionaPermissao($permissao);
 
-        return redirect()->back();
+          return redirect()->back();
+      }
+      return redirect()->back();
     }
 
     public function permissaoDestroy($id, $permissao_id)
     {
-        $papel = Papel::find($id);
-        $permissao = Permissao::find($permissao_id);
-        $papel->removePermissao($permissao);
+      if(Gate::allows('papel-edit')){
+          $papel = Papel::find($id);
+          $permissao = Permissao::find($permissao_id);
+          $papel->removePermissao($permissao);
 
-        return redirect()->back();
+          return redirect()->back();
+      }
+      return redirect()->back();
     }
 
     /**
@@ -63,13 +76,16 @@ class PapelController extends Controller
      */
     public function create()
     {
-      $caminhos = [
-      ['url'=>'/admin','titulo'=>'Admin'],
-      ['url'=>route('papeis.index'),'titulo'=>'Papéis'],
-      ['url'=>'','titulo'=>'Adicionar']
-      ];
+      if(Gate::allows('papel-create')){
+          $caminhos = [
+          ['url'=>'/admin','titulo'=>'Admin'],
+          ['url'=>route('papeis.index'),'titulo'=>'Papéis'],
+          ['url'=>'','titulo'=>'Adicionar']
+          ];
 
-      return view('admin.papel.adicionar',compact('caminhos'));
+          return view('admin.papel.adicionar',compact('caminhos'));
+      }
+      return redirect()->back();
     }
 
     /**
@@ -80,13 +96,16 @@ class PapelController extends Controller
      */
     public function store(Request $request)
     {
-      if($request['nome'] && $request['nome'] != "Admin"){
-          Papel::create($request->all());
+      if(Gate::allows('papel-create')){
+          if($request['nome'] && $request['nome'] != "Admin"){
+            Papel::create($request->all());
 
-          return redirect()->route('papeis.index');
+            return redirect()->route('papeis.index');
+          }
+
+        return redirect()->back();
       }
-
-      return redirect()->back();
+      return redirect()->back();      
     }
 
     /**
@@ -97,7 +116,7 @@ class PapelController extends Controller
      */
     public function show($id)
     {
-        //
+        return redirect()->back();
     }
 
     /**
@@ -108,19 +127,23 @@ class PapelController extends Controller
      */
     public function edit($id)
     {
-      if(Papel::find($id)->nome == "Admin"){
-          return redirect()->route('papeis.index');
+      if(Gate::allows('papel-edit')){
+          if(Papel::find($id)->nome == "Admin"){
+              return redirect()->route('papeis.index');
+          }
+
+          $registro = Papel::find($id);
+
+          $caminhos = [
+          ['url'=>'/admin','titulo'=>'Admin'],
+          ['url'=>route('papeis.index'),'titulo'=>'Papéis'],
+          ['url'=>'','titulo'=>'Editar']
+          ];
+
+          return view('admin.papel.editar',compact('registro','caminhos'));
       }
+      return redirect()->back();
 
-      $registro = Papel::find($id);
-
-      $caminhos = [
-      ['url'=>'/admin','titulo'=>'Admin'],
-      ['url'=>route('papeis.index'),'titulo'=>'Papéis'],
-      ['url'=>'','titulo'=>'Editar']
-      ];
-
-      return view('admin.papel.editar',compact('registro','caminhos'));
     }
 
     /**
@@ -132,14 +155,17 @@ class PapelController extends Controller
      */
     public function update(Request $request, $id)
     {
-      if(Papel::find($id)->nome == "Admin"){
-          return redirect()->route('papeis.index');
-      }
-      if($request['nome'] && $request['nome'] != "Admin"){
-        Papel::find($id)->update($request->all());
-      }
+      if(Gate::allows('papel-edit')){
+        if(Papel::find($id)->nome == "Admin"){
+            return redirect()->route('papeis.index');
+        }
+        if($request['nome'] && $request['nome'] != "Admin"){
+          Papel::find($id)->update($request->all());
+        }
 
-      return redirect()->route('papeis.index');
+        return redirect()->route('papeis.index');
+      }
+      return redirect()->back();
     }
 
     /**
@@ -150,10 +176,13 @@ class PapelController extends Controller
      */
     public function destroy($id)
     {
-      if(Papel::find($id)->nome == "Admin"){
+      if(Gate::allows('papel-delete')){
+          if(Papel::find($id)->nome == "Admin"){
+              return redirect()->route('papeis.index');
+          }
+          Papel::find($id)->delete();
           return redirect()->route('papeis.index');
       }
-      Papel::find($id)->delete();
-      return redirect()->route('papeis.index');
+      return redirect()->back();
     }
 }

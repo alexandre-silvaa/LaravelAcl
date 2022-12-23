@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Papel;
+use Gate;
 
 class UsuarioController extends Controller
 {
@@ -16,43 +17,55 @@ class UsuarioController extends Controller
      */
     public function index()
     {
-        $usuarios = User::orderBy('name')->get();
-        $caminhos = [
-            ['url'=>'/admin', 'titulo'=>'Admin'],
-            ['url'=>'', 'titulo'=>'Usuários'],
-        ];
-        return view('admin.usuarios.index',compact('usuarios','caminhos'));
+        if(Gate::allows('usuarios-view')){
+            $usuarios = User::orderBy('name')->get();
+            $caminhos = [
+                ['url'=>'/admin', 'titulo'=>'Admin'],
+                ['url'=>'', 'titulo'=>'Usuários'],
+            ];
+            return view('admin.usuarios.index',compact('usuarios','caminhos'));
+        }
+        return redirect()->back();
     }
 
     public function papel($id)
     {
-        $usuario = User::find($id);
-        $papel = Papel::all();
-                $caminhos = [
-            ['url'=>'/admin', 'titulo'=>'Admin'],
-            ['url'=>route('usuarios.index'), 'titulo'=>'Usuários'],
-            ['url'=>'', 'titulo'=>'Papel'],
-        ];
-        return view('admin.usuarios.papel',compact('usuario','papel','caminhos'));
+        if(Gate::allows('usuario-edit')){
+            $usuario = User::find($id);
+            $papel = Papel::all();
+                    $caminhos = [
+                ['url'=>'/admin', 'titulo'=>'Admin'],
+                ['url'=>route('usuarios.index'), 'titulo'=>'Usuários'],
+                ['url'=>'', 'titulo'=>'Papel'],
+            ];
+            return view('admin.usuarios.papel',compact('usuario','papel','caminhos'));
+        }
+        return redirect()->back();
     }
 
     public function papelStore(Request $request,$id)
     {
-        $usuario = User::find($id);
-        $data = $request->all();
+        if(Gate::allows('usuario-edit')){
+            $usuario = User::find($id);
+            $data = $request->all();
 
-        $papel = Papel::find($data['papel_id']);
-        $usuario->adicionaPapel($papel);
+            $papel = Papel::find($data['papel_id']);
+            $usuario->adicionaPapel($papel);
 
+            return redirect()->back();
+        }
         return redirect()->back();
     }
 
     public function papelDestroy($id, $papel_id)
     {
-        $usuario = User::find($id);
-        $papel = Papel::find($papel_id);
-        $usuario->removePapel($papel);
+        if(Gate::allows('papel-edit')){
+            $usuario = User::find($id);
+            $papel = Papel::find($papel_id);
+            $usuario->removePapel($papel);
 
+            return redirect()->back();
+        }
         return redirect()->back();
     }
 
@@ -63,7 +76,7 @@ class UsuarioController extends Controller
      */
     public function create()
     {
-        //
+        return redirect()->back();
     }
 
     /**
@@ -74,7 +87,7 @@ class UsuarioController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return redirect()->back();
     }
 
     /**
@@ -85,7 +98,7 @@ class UsuarioController extends Controller
      */
     public function show($id)
     {
-        //
+        return redirect()->back();
     }
 
     /**
@@ -96,7 +109,7 @@ class UsuarioController extends Controller
      */
     public function edit($id)
     {
-        //
+        return redirect()->back();
     }
 
     /**
@@ -108,7 +121,7 @@ class UsuarioController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        return redirect()->back();
     }
 
     /**
@@ -119,6 +132,6 @@ class UsuarioController extends Controller
      */
     public function destroy($id)
     {
-        //
+        return redirect()->back();
     }
 }

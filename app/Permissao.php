@@ -12,6 +12,6 @@ class Permissao extends Model
 
     public function papeis()
     {
-        return $this->belongsTo(Papel::class);
+        return $this->belongsToMany(Papel::class);
     }
 }

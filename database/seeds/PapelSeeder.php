@@ -23,7 +23,7 @@ class PapelSeeder extends Seeder
         ]);
 
         $p3 = Papel::firstOrCreate([
-            'nome' => 'Usuário',
+            'nome' => 'Usuario',
             'descricao' => 'Acesso ao site como usuário'
         ]);
 
