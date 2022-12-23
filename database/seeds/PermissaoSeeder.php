@@ -12,7 +12,7 @@ class PermissaoSeeder extends Seeder
      */
     public function run()
     {
-        $usuarios1 = Permissao::firstOrCreate([
+      $usuarios1 = Permissao::firstOrCreate([
           'nome' =>'usuario-view',
           'descricao' =>'Acesso a lista de Usuários'
       ]);
